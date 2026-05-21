@@ -62,9 +62,20 @@ typedef struct s_simu
     pthread_mutex_t state_mutex;
 }                   t_simu;
 
-long get_time_ms(void);
-long timestamp(t_simu *simu);
-int get_stop(t_simu *simu);
-void set_stop(t_simu *simu);
+long                get_time_ms(void);
+long                timestamp(t_simu *simu);
+int                 get_stop(t_simu *simu);
+void                set_stop(t_simu *simu);
+void                take_dongles(t_coder *coder);
+void                drop_dongles(t_coder *coder);
+t_dongle            init_dongle(int i);
+void*               monitor_routine(void *arg);
+void                compile(t_coder *coder);
+void                debug(t_coder *coder);
+void                refactor(t_coder *coder);
+void*               routine(void *arg);
+t_coder             init_coder(int i, t_simu *simu);
+void                init_simu(t_simu* simu);
+void                make_simu(t_simu *simu);
 
 #endif
