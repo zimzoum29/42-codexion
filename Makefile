@@ -3,7 +3,13 @@ NAME = codexion
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -pthread
 
-SRCS = main.c
+SRCS = main.c\
+		dongle.c\
+		monitor.c\
+		routine.c\
+		simu.c\
+		time.c\
+		utils.c
 OBJS = $(SRCS:.c=.o)
 
 all: $(NAME)
