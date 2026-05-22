@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 12:37:32 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/21 14:12:54 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/05/22 01:35:19 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ t_coder	init_coder(int i, t_simu *simu)
 	coder.id = i;
 	coder.simu = simu;
 	coder.compile_count = 0;
-	coder.last_compile = 0;
+	coder.last_compile = timestamp(simu);
 	coder.left = &simu->dongles[index];
 	coder.right = &simu->dongles[(index + 1) % simu->number_of_coders];
 	return (coder);

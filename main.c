@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 12:37:23 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/21 12:45:26 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/05/22 01:48:31 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,11 @@ int	main(int ac, char **av)
 	i = 0;
 	if (ac == 9)
 	{
-		ft_parse_arg(av, &simu);
+		if (!ft_parse_arg(av, &simu))
+		{
+			printf("Error\n");
+			return (1);
+		}
 		init_simu(&simu);
 		make_simu(&simu);
 		while (i < simu.number_of_coders)

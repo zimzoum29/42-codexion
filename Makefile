@@ -9,7 +9,9 @@ SRCS = main.c\
 		routine.c\
 		simu.c\
 		time.c\
-		utils.c
+		utils.c\
+       	scheduler.c
+
 OBJS = $(SRCS:.c=.o)
 
 all: $(NAME)
