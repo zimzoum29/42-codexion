@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 12:37:32 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/22 01:35:19 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/05/22 14:55:59 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,19 +27,11 @@ t_coder	init_coder(int i, t_simu *simu)
 	return (coder);
 }
 
-void	init_simu(t_simu *simu)
+void	init_case(t_simu *simu)
 {
 	int	i;
 
 	i = 0;
-	simu->start_time = get_time_ms();
-	pthread_mutex_init(&simu->print_mutex, NULL);
-	simu->stop = 0;
-	pthread_mutex_init(&simu->stop_mutex, NULL);
-	simu->finished_coders = 0;
-	pthread_mutex_init(&simu->state_mutex, NULL);
-	simu->dongles = malloc(sizeof(t_dongle) * simu->number_of_coders);
-	simu->coders = malloc(sizeof(t_coder) * simu->number_of_coders);
 	while (i < simu->number_of_coders)
 	{
 		simu->dongles[i] = init_dongle(i);
@@ -52,6 +44,27 @@ void	init_simu(t_simu *simu)
 		simu->coders[i].last_compile = 0;
 		i++;
 	}
+}
+
+int	init_simu(t_simu *simu)
+{
+	simu->start_time = get_time_ms();
+	pthread_mutex_init(&simu->print_mutex, NULL);
+	simu->stop = 0;
+	pthread_mutex_init(&simu->stop_mutex, NULL);
+	simu->finished_coders = 0;
+	pthread_mutex_init(&simu->state_mutex, NULL);
+	simu->dongles = malloc(sizeof(t_dongle) * simu->number_of_coders); 
+	if (simu->dongles == NULL)
+		return (1);
+	simu->coders = malloc(sizeof(t_coder) * simu->number_of_coders);
+	if (simu->coders == NULL)
+	{
+		free(simu->dongles);
+		return (1);
+	}
+	init_case(simu);
+	return (0);
 }
 
 void	make_simu(t_simu *simu)

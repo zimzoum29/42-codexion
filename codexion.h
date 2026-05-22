@@ -81,9 +81,10 @@ void					debug(t_coder *coder);
 void					refactor(t_coder *coder);
 void					*routine(void *arg);
 t_coder					init_coder(int i, t_simu *simu);
-void					init_simu(t_simu *simu);
+int					init_simu(t_simu *simu);
 void					make_simu(t_simu *simu);
 void					print_state(t_coder *coder, char *msg);
 int 					ft_parse_arg(char **av, t_simu *simu);
+void					clean_mutex(t_simu simu);
 
 #endif

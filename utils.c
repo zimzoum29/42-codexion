@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 12:37:38 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/22 01:55:11 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/05/22 14:37:08 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,4 +72,21 @@ int	ft_parse_arg(char **av, t_simu *simu)
 	if (simu->number_of_coders <= 0)
 		return (0);
 	return (1);
+}
+
+void	clean_mutex(t_simu simu)
+{
+	int i;
+
+	i = 0;
+	while (i < simu.number_of_coders)
+	{
+		pthread_mutex_destroy(&simu.dongles[i].mutex);
+		i++;
+	}
+	pthread_mutex_destroy(&simu.print_mutex);
+	pthread_mutex_destroy(&simu.stop_mutex);
+	pthread_mutex_destroy(&simu.state_mutex);
+	free(simu.dongles);
+	free(simu.coders);
 }

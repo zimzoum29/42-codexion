@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 12:37:23 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/22 01:48:31 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/05/22 14:55:31 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,7 @@
 int	main(int ac, char **av)
 {
 	t_simu	simu;
-	int		i;
 
-	i = 0;
 	if (ac == 9)
 	{
 		if (!ft_parse_arg(av, &simu))
@@ -25,18 +23,10 @@ int	main(int ac, char **av)
 			printf("Error\n");
 			return (1);
 		}
-		init_simu(&simu);
+		if (init_simu(&simu) == 1)
+			return (1); 
 		make_simu(&simu);
-		while (i < simu.number_of_coders)
-		{
-			pthread_mutex_destroy(&simu.dongles[i].mutex);
-			i++;
-		}
-		pthread_mutex_destroy(&simu.print_mutex);
-		pthread_mutex_destroy(&simu.stop_mutex);
-		pthread_mutex_destroy(&simu.state_mutex);
-		free(simu.dongles);
-		free(simu.coders);
+		clean_mutex(simu);
 	}
 	else
 		printf("You must launch the program with ./simu number_of_coders \
