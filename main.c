@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 12:37:23 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/22 14:55:31 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/05/26 08:19:44 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,13 +18,11 @@ int	main(int ac, char **av)
 
 	if (ac == 9)
 	{
-		if (!ft_parse_arg(av, &simu))
+		if (!ft_parse_arg(av, &simu) && !init_simu(&simu))
 		{
 			printf("Error\n");
-			return (1);
+			return (0);
 		}
-		if (init_simu(&simu) == 1)
-			return (1); 
 		make_simu(&simu);
 		clean_mutex(simu);
 	}

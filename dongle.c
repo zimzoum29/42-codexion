@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 12:37:20 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/22 01:52:15 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/05/26 08:22:39 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ void	drop_dongles(t_coder *coder)
 	pthread_mutex_unlock(&coder->right->mutex);
 }
 
-t_dongle	init_dongle()
+t_dongle	init_dongle(void)
 {
 	t_dongle	dongle;
 

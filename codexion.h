@@ -17,22 +17,22 @@
 # include <pthread.h>
 # include <stdio.h>
 # include <stdlib.h>
+# include <string.h>
 # include <sys/time.h>
 # include <unistd.h>
-# include <string.h>
 
 typedef struct s_simu	t_simu;
 
 typedef enum e_scheduler
 {
-						FIFO,
-						EDF
+	FIFO,
+	EDF
 }						t_scheduler;
 
 typedef struct s_dongle
 {
 	pthread_mutex_t		mutex;
-	long 				cooldown_until;
+	long				cooldown_until;
 }						t_dongle;
 
 typedef struct s_coder
@@ -56,7 +56,7 @@ typedef struct s_simu
 	int					time_to_refactor;
 	int					number_of_compiles_required;
 	int					dongle_cooldown;
-	t_scheduler 		scheduler;
+	t_scheduler			scheduler;
 	t_coder				*coders;
 	t_dongle			*dongles;
 	long				start_time;
@@ -74,17 +74,17 @@ int						get_stop(t_simu *simu);
 void					set_stop(t_simu *simu);
 void					take_dongles(t_coder *coder);
 void					drop_dongles(t_coder *coder);
-t_dongle				init_dongle();
+t_dongle				init_dongle(void);
 void					*monitor_routine(void *arg);
 void					compile(t_coder *coder);
 void					debug(t_coder *coder);
 void					refactor(t_coder *coder);
 void					*routine(void *arg);
 t_coder					init_coder(int i, t_simu *simu);
-int					init_simu(t_simu *simu);
+int						init_simu(t_simu *simu);
 void					make_simu(t_simu *simu);
 void					print_state(t_coder *coder, char *msg);
-int 					ft_parse_arg(char **av, t_simu *simu);
+int						ft_parse_arg(char **av, t_simu *simu);
 void					clean_mutex(t_simu simu);
 
 #endif

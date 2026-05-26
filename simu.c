@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 12:37:32 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/22 14:55:59 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/05/26 08:24:52 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ void	init_case(t_simu *simu)
 	i = 0;
 	while (i < simu->number_of_coders)
 	{
-		simu->dongles[i] = init_dongle(i);
+		simu->dongles[i] = init_dongle();
 		simu->coders[i] = init_coder(i + 1, simu);
 		i++;
 	}
@@ -54,17 +54,17 @@ int	init_simu(t_simu *simu)
 	pthread_mutex_init(&simu->stop_mutex, NULL);
 	simu->finished_coders = 0;
 	pthread_mutex_init(&simu->state_mutex, NULL);
-	simu->dongles = malloc(sizeof(t_dongle) * simu->number_of_coders); 
+	simu->dongles = malloc(sizeof(t_dongle) * simu->number_of_coders);
 	if (simu->dongles == NULL)
-		return (1);
+		return (0);
 	simu->coders = malloc(sizeof(t_coder) * simu->number_of_coders);
 	if (simu->coders == NULL)
 	{
 		free(simu->dongles);
-		return (1);
+		return (0);
 	}
 	init_case(simu);
-	return (0);
+	return (1);
 }
 
 void	make_simu(t_simu *simu)
