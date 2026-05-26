@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 12:37:32 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/26 08:24:52 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/05/26 09:11:40 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ t_coder	init_coder(int i, t_simu *simu)
 	return (coder);
 }
 
-void	init_case(t_simu *simu)
+int	init_case(t_simu *simu)
 {
 	int	i;
 
@@ -35,6 +35,11 @@ void	init_case(t_simu *simu)
 	while (i < simu->number_of_coders)
 	{
 		simu->dongles[i] = init_dongle();
+		simu->dongles[i].queue.data = malloc(sizeof(t_request)
+				* simu->number_of_coders * 2);
+		if (simu->dongles[i].queue.data == NULL)
+			return (0);
+		simu->dongles[i].queue.capacity = simu->number_of_coders * 2;
 		simu->coders[i] = init_coder(i + 1, simu);
 		i++;
 	}
@@ -44,6 +49,7 @@ void	init_case(t_simu *simu)
 		simu->coders[i].last_compile = 0;
 		i++;
 	}
+	return (1);
 }
 
 int	init_simu(t_simu *simu)
@@ -63,7 +69,12 @@ int	init_simu(t_simu *simu)
 		free(simu->dongles);
 		return (0);
 	}
-	init_case(simu);
+	if (!init_case(simu))
+	{
+		return (0);
+		free(simu->dongles);
+		free(simu->coders);
+	}
 	return (1);
 }
 
@@ -76,7 +87,7 @@ void	make_simu(t_simu *simu)
 	while (i < simu->number_of_coders)
 	{
 		pthread_create(&simu->coders[i].thread, NULL, routine,
-			&simu->coders[i]);
+				&simu->coders[i]);
 		i++;
 	}
 	i = 0;

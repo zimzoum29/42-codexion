@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 12:37:28 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/22 01:39:39 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/05/26 09:08:06 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@ void	compile(t_coder *coder)
 	if (coder->simu->number_of_coders == 1)
 	{
 		usleep(coder->simu->time_to_burnout * 1000);
-		pthread_mutex_unlock(&coder->left->mutex);
 		set_stop(coder->simu);
 		return ;
 	}

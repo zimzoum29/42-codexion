@@ -13,7 +13,6 @@
 #ifndef CODEXION_H
 # define CODEXION_H
 
-# include <aio.h>
 # include <pthread.h>
 # include <stdio.h>
 # include <stdlib.h>
@@ -22,6 +21,7 @@
 # include <unistd.h>
 
 typedef struct s_simu	t_simu;
+typedef struct s_coder	t_coder;
 
 typedef enum e_scheduler
 {
@@ -29,9 +29,26 @@ typedef enum e_scheduler
 	EDF
 }						t_scheduler;
 
+typedef struct s_request
+{
+	t_coder				*coder;
+	long				arrival;
+	long				deadline;
+}						t_request;
+
+typedef struct s_heap
+{
+	t_request			*data;
+	int					size;
+	int					capacity;
+}						t_heap;
+
 typedef struct s_dongle
 {
 	pthread_mutex_t		mutex;
+	pthread_cond_t		cond;
+	t_heap				queue;
+	int					owner_id;
 	long				cooldown_until;
 }						t_dongle;
 
@@ -75,6 +92,7 @@ void					set_stop(t_simu *simu);
 void					take_dongles(t_coder *coder);
 void					drop_dongles(t_coder *coder);
 t_dongle				init_dongle(void);
+void					release_dongle(t_coder *coder, t_dongle *dongle);
 void					*monitor_routine(void *arg);
 void					compile(t_coder *coder);
 void					debug(t_coder *coder);
@@ -86,5 +104,12 @@ void					make_simu(t_simu *simu);
 void					print_state(t_coder *coder, char *msg);
 int						ft_parse_arg(char **av, t_simu *simu);
 void					clean_mutex(t_simu simu);
+void					request_dongle(t_coder *coder, t_dongle *dongle);
+int						request_is_before(t_request a, t_request b, t_scheduler scheduler);
+void					heap_push(t_heap *heap, t_request req, int scheduler);
+t_request				heap_top(t_heap *heap);
+void					heap_pop(t_heap *heap, int scheduler);
+void					heapify_down(t_heap *heap, int index, int scheduler);
+void					heapify_up(t_heap *heap, int index, int scheduler);
 
 #endif

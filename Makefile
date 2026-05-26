@@ -10,7 +10,8 @@ SRCS = main.c\
 		simu.c\
 		time.c\
 		utils.c\
-       	scheduler.c
+       	scheduler.c\
+		heap.c
 
 OBJS = $(SRCS:.c=.o)
 
