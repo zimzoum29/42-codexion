@@ -5,20 +5,30 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/21 12:37:32 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/26 09:11:40 by tigondra         ###   ########.fr       */
+/*   Created: 2026/05/26 13:17:11 by tigondra          #+#    #+#             */
+/*   Updated: 2026/05/26 20:00:00 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-t_coder	init_coder(int i, t_simu *simu)
+static t_dongle	init_dongle(void)
+{
+	t_dongle	dongle;
+
+	pthread_mutex_init(&dongle.mutex, NULL);
+	dongle.cooldown_until = 0;
+	dongle.in_use = 0;
+	return (dongle);
+}
+
+static t_coder	init_coder(int id, t_simu *simu)
 {
 	t_coder	coder;
 	int		index;
 
-	index = i - 1;
-	coder.id = i;
+	index = id - 1;
+	coder.id = id;
 	coder.simu = simu;
 	coder.compile_count = 0;
 	coder.last_compile = timestamp(simu);
@@ -27,7 +37,7 @@ t_coder	init_coder(int i, t_simu *simu)
 	return (coder);
 }
 
-int	init_case(t_simu *simu)
+static void	init_tables(t_simu *simu)
 {
 	int	i;
 
@@ -35,19 +45,25 @@ int	init_case(t_simu *simu)
 	while (i < simu->number_of_coders)
 	{
 		simu->dongles[i] = init_dongle();
-		simu->dongles[i].queue.data = malloc(sizeof(t_request)
-				* simu->number_of_coders * 2);
-		if (simu->dongles[i].queue.data == NULL)
-			return (0);
-		simu->dongles[i].queue.capacity = simu->number_of_coders * 2;
 		simu->coders[i] = init_coder(i + 1, simu);
 		i++;
 	}
-	i = 0;
-	while (i < simu->number_of_coders)
+}
+
+static int	init_memory(t_simu *simu)
+{
+	simu->dongles = malloc(sizeof(t_dongle) * simu->number_of_coders);
+	if (!simu->dongles)
+		return (0);
+	simu->coders = malloc(sizeof(t_coder) * simu->number_of_coders);
+	if (!simu->coders)
+		return (free(simu->dongles), 0);
+	simu->queue.data = malloc(sizeof(t_request) * simu->number_of_coders);
+	if (!simu->queue.data)
 	{
-		simu->coders[i].last_compile = 0;
-		i++;
+		free(simu->dongles);
+		free(simu->coders);
+		return (0);
 	}
 	return (1);
 }
@@ -55,46 +71,35 @@ int	init_case(t_simu *simu)
 int	init_simu(t_simu *simu)
 {
 	simu->start_time = get_time_ms();
-	pthread_mutex_init(&simu->print_mutex, NULL);
 	simu->stop = 0;
+	simu->queue.size = 0;
+	simu->queue.capacity = simu->number_of_coders;
+	if (!init_memory(simu))
+		return (0);
+	pthread_mutex_init(&simu->print_mutex, NULL);
 	pthread_mutex_init(&simu->stop_mutex, NULL);
-	simu->finished_coders = 0;
 	pthread_mutex_init(&simu->state_mutex, NULL);
-	simu->dongles = malloc(sizeof(t_dongle) * simu->number_of_coders);
-	if (simu->dongles == NULL)
-		return (0);
-	simu->coders = malloc(sizeof(t_coder) * simu->number_of_coders);
-	if (simu->coders == NULL)
-	{
-		free(simu->dongles);
-		return (0);
-	}
-	if (!init_case(simu))
-	{
-		return (0);
-		free(simu->dongles);
-		free(simu->coders);
-	}
+	pthread_mutex_init(&simu->queue_mutex, NULL);
+	pthread_cond_init(&simu->queue_cond, NULL);
+	init_tables(simu);
 	return (1);
 }
 
-void	make_simu(t_simu *simu)
+int	make_simu(t_simu *simu)
 {
 	int	i;
 
 	i = 0;
-	pthread_create(&simu->monitor, NULL, monitor_routine, simu);
 	while (i < simu->number_of_coders)
 	{
 		pthread_create(&simu->coders[i].thread, NULL, routine,
-				&simu->coders[i]);
+			&simu->coders[i]);
 		i++;
 	}
+	pthread_create(&simu->monitor_thread, NULL, monitor_routine, simu);
 	i = 0;
 	while (i < simu->number_of_coders)
-	{
-		pthread_join(simu->coders[i].thread, NULL);
-		i++;
-	}
-	pthread_join(simu->monitor, NULL);
+		pthread_join(simu->coders[i++].thread, NULL);
+	pthread_join(simu->monitor_thread, NULL);
+	return (1);
 }

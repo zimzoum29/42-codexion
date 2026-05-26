@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/21 12:37:23 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/26 08:55:27 by tigondra         ###   ########.fr       */
+/*   Created: 2026/05/26 12:35:27 by tigondra          #+#    #+#             */
+/*   Updated: 2026/05/26 20:00:00 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,19 +16,16 @@ int	main(int ac, char **av)
 {
 	t_simu	simu;
 
-	if (ac == 9)
+	if (ac != 9)
 	{
-		if (!ft_parse_arg(av, &simu) || !init_simu(&simu))
-		{
-			printf("Error\n");
-			return (0);
-		}
-		make_simu(&simu);
-		clean_mutex(simu);
+		fprintf(stderr, "Usage: ./codexion number_of_coders time_to_burnout ");
+		fprintf(stderr, "time_to_compile time_to_debug time_to_refactor ");
+		fprintf(stderr, "number_of_compiles_required dongle_cooldown fifo|edf\n");
+		return (1);
 	}
-	else
-		printf("You must launch the program with ./simu number_of_coders \
-            time_to_burnout time_to_compile time_to_debug time_to_refactor \
-            number_of_compiles_required dongle_cooldown scheduler");
+	if (!parse_args(av, &simu) || !init_simu(&simu))
+		return (1);
+	make_simu(&simu);
+	clean_simu(&simu);
 	return (0);
 }

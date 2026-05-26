@@ -5,14 +5,14 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/26 10:25:13 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/26 10:29:15 by tigondra         ###   ########.fr       */
+/*   Created: 2026/05/26 12:43:35 by tigondra          #+#    #+#             */
+/*   Updated: 2026/05/26 20:00:00 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-int	is_number(char *str)
+static int	is_number(char *str)
 {
 	int	i;
 
@@ -28,7 +28,21 @@ int	is_number(char *str)
 	return (1);
 }
 
-int	valid_scheduler(char *str)
+static int	valid_number(char *str, int can_be_zero)
+{
+	long	value;
+
+	if (!is_number(str) || strlen(str) > 10)
+		return (0);
+	value = atoi(str);
+	if (can_be_zero && value >= 0)
+		return (1);
+	if (!can_be_zero && value > 0)
+		return (1);
+	return (0);
+}
+
+static int	valid_scheduler(char *str)
 {
 	if (strcmp(str, "fifo") == 0)
 		return (1);
@@ -37,19 +51,8 @@ int	valid_scheduler(char *str)
 	return (0);
 }
 
-int	ft_parse_arg(char **av, t_simu *simu)
+static void	fill_simu(char **av, t_simu *simu)
 {
-	int	i;
-
-	i = 1;
-	while (i <= 7)
-	{
-		if (!is_number(av[i]) || atoi(av[i]) <= 0)
-			return (0);
-		i++;
-	}
-	if (!valid_scheduler(av[8]))
-		return (0);
 	simu->number_of_coders = atoi(av[1]);
 	simu->time_to_burnout = atoi(av[2]);
 	simu->time_to_compile = atoi(av[3]);
@@ -61,7 +64,23 @@ int	ft_parse_arg(char **av, t_simu *simu)
 		simu->scheduler = FIFO;
 	else
 		simu->scheduler = EDF;
-	if (simu->number_of_coders <= 0)
-		return (0);
+}
+
+int	parse_args(char **av, t_simu *simu)
+{
+	int	i;
+
+	i = 1;
+	while (i <= 6)
+	{
+		if (!valid_number(av[i], 0))
+			return (fprintf(stderr, "Invalid numeric argument\n"), 0);
+		i++;
+	}
+	if (!valid_number(av[7], 1))
+		return (fprintf(stderr, "Invalid cooldown\n"), 0);
+	if (!valid_scheduler(av[8]))
+		return (fprintf(stderr, "Scheduler must be fifo or edf\n"), 0);
+	fill_simu(av, simu);
 	return (1);
 }

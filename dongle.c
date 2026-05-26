@@ -5,65 +5,95 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/21 12:37:20 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/26 08:56:00 by tigondra         ###   ########.fr       */
+/*   Created: 2026/05/26 13:41:19 by tigondra          #+#    #+#             */
+/*   Updated: 2026/05/26 20:00:00 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-void	wait_cooldown(t_coder *coder, t_dongle *dongle)
+static void	lock_pair(t_dongle *a, t_dongle *b)
 {
-	while (!get_stop(coder->simu)
-		&& timestamp(coder->simu) < dongle->cooldown_until)
-		usleep(500);
-}
-
-void	take_dongles(t_coder *coder)
-{
-	if (coder->simu->number_of_coders == 1)
+	if (a < b)
 	{
-		request_dongle(coder, coder->left);
-		return ;
-	}
-	if (coder->left < coder->right)
-	{
-		request_dongle(coder, coder->left);
-		request_dongle(coder, coder->right);
+		pthread_mutex_lock(&a->mutex);
+		pthread_mutex_lock(&b->mutex);
 	}
 	else
 	{
-		request_dongle(coder, coder->right);
-		request_dongle(coder, coder->left);
+		pthread_mutex_lock(&b->mutex);
+		pthread_mutex_lock(&a->mutex);
 	}
+}
+
+static void	unlock_pair(t_dongle *a, t_dongle *b)
+{
+	pthread_mutex_unlock(&a->mutex);
+	pthread_mutex_unlock(&b->mutex);
+}
+
+static int	reserve_one(t_coder *coder)
+{
+	long	now;
+
+	now = timestamp(coder->simu);
+	pthread_mutex_lock(&coder->left->mutex);
+	if (!coder->left->in_use && coder->left->cooldown_until <= now)
+	{
+		coder->left->in_use = 1;
+		pthread_mutex_unlock(&coder->left->mutex);
+		print_state(coder, "has taken a dongle");
+		return (1);
+	}
+	pthread_mutex_unlock(&coder->left->mutex);
+	return (0);
+}
+
+int	take_dongles(t_coder *coder)
+{
+	long	now;
+
+	if (coder->simu->number_of_coders == 1)
+		return (reserve_one(coder));
+	now = timestamp(coder->simu);
+	lock_pair(coder->left, coder->right);
+	if (!coder->left->in_use && !coder->right->in_use
+		&& coder->left->cooldown_until <= now
+		&& coder->right->cooldown_until <= now)
+	{
+		coder->left->in_use = 1;
+		coder->right->in_use = 1;
+		unlock_pair(coder->left, coder->right);
+		print_state(coder, "has taken a dongle");
+		print_state(coder, "has taken a dongle");
+		return (1);
+	}
+	unlock_pair(coder->left, coder->right);
+	return (0);
 }
 
 void	drop_dongles(t_coder *coder)
 {
-	release_dongle(coder, coder->left);
-	release_dongle(coder, coder->right);
-}
+	long	now;
 
-t_dongle	init_dongle(void)
-{
-	t_dongle	dongle;
-
-	pthread_mutex_init(&dongle.mutex, NULL);
-	pthread_cond_init(&dongle.cond, NULL);
-	dongle.queue.data = NULL;
-	dongle.queue.size = 0;
-	dongle.queue.capacity = 0;
-	dongle.owner_id = 0;
-	dongle.cooldown_until = 0;
-	return (dongle);
-}
-
-void	release_dongle(t_coder *coder, t_dongle *dongle)
-{
-	pthread_mutex_lock(&dongle->mutex);
-	dongle->owner_id = 0;
-	dongle->cooldown_until = timestamp(coder->simu)
-		+ coder->simu->dongle_cooldown;
-	pthread_cond_broadcast(&dongle->cond);
-	pthread_mutex_unlock(&dongle->mutex);
+	now = timestamp(coder->simu);
+	pthread_mutex_lock(&coder->simu->queue_mutex);
+	if (coder->simu->number_of_coders == 1)
+	{
+		pthread_mutex_lock(&coder->left->mutex);
+		coder->left->in_use = 0;
+		coder->left->cooldown_until = now + coder->simu->dongle_cooldown;
+		pthread_mutex_unlock(&coder->left->mutex);
+	}
+	else
+	{
+		lock_pair(coder->left, coder->right);
+		coder->left->in_use = 0;
+		coder->right->in_use = 0;
+		coder->left->cooldown_until = now + coder->simu->dongle_cooldown;
+		coder->right->cooldown_until = now + coder->simu->dongle_cooldown;
+		unlock_pair(coder->left, coder->right);
+	}
+	pthread_cond_broadcast(&coder->simu->queue_cond);
+	pthread_mutex_unlock(&coder->simu->queue_mutex);
 }

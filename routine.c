@@ -5,49 +5,64 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/21 12:37:28 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/26 09:08:06 by tigondra         ###   ########.fr       */
+/*   Created: 2026/05/26 13:32:16 by tigondra          #+#    #+#             */
+/*   Updated: 2026/05/26 20:00:00 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-void	compile(t_coder *coder)
+static int	compiles_are_completed(t_simu *simu)
 {
-	take_dongles(coder);
-	if (coder->simu->number_of_coders == 1)
+	int	i;
+
+	i = 0;
+	while (i < simu->number_of_coders)
 	{
-		usleep(coder->simu->time_to_burnout * 1000);
-		set_stop(coder->simu);
-		return ;
+		if (simu->coders[i].compile_count
+			< simu->number_of_compiles_required)
+			return (0);
+		i++;
 	}
+	return (1);
+}
+
+static void	compile(t_coder *coder)
+{
+	int	completed;
+
 	pthread_mutex_lock(&coder->simu->state_mutex);
 	coder->last_compile = timestamp(coder->simu);
+	coder->compile_count++;
+	completed = compiles_are_completed(coder->simu);
 	pthread_mutex_unlock(&coder->simu->state_mutex);
 	print_state(coder, "is compiling");
-	coder->compile_count++;
-	if (coder->compile_count == coder->simu->number_of_compiles_required)
-	{
-		pthread_mutex_lock(&coder->simu->stop_mutex);
-		coder->simu->finished_coders++;
-		if (coder->simu->finished_coders >= coder->simu->number_of_coders)
-			coder->simu->stop = 1;
-		pthread_mutex_unlock(&coder->simu->stop_mutex);
-	}
-	usleep(coder->simu->time_to_compile * 1000);
-	drop_dongles(coder);
+	if (completed)
+		stop_and_wake(coder->simu);
+	ms_sleep(coder->simu, coder->simu->time_to_compile);
 }
 
-void	debug(t_coder *coder)
+static void	debug(t_coder *coder)
 {
 	print_state(coder, "is debugging");
-	usleep(coder->simu->time_to_debug * 1000);
+	ms_sleep(coder->simu, coder->simu->time_to_debug);
 }
 
-void	refactor(t_coder *coder)
+static void	refactor(t_coder *coder)
 {
 	print_state(coder, "is refactoring");
-	usleep(coder->simu->time_to_refactor * 1000);
+	ms_sleep(coder->simu, coder->simu->time_to_refactor);
+}
+
+static void	*single_coder_routine(t_coder *coder)
+{
+	if (take_dongles(coder))
+	{
+		while (!get_stop(coder->simu))
+			usleep(100);
+		drop_dongles(coder);
+	}
+	return (NULL);
 }
 
 void	*routine(void *arg)
@@ -55,14 +70,17 @@ void	*routine(void *arg)
 	t_coder	*coder;
 
 	coder = (t_coder *)arg;
+	if (coder->simu->number_of_coders == 1)
+		return (single_coder_routine(coder));
 	while (!get_stop(coder->simu))
 	{
+		if (!request_compile_permission(coder))
+			return (NULL);
 		compile(coder);
+		drop_dongles(coder);
 		if (get_stop(coder->simu))
-			break ;
+			return (NULL);
 		debug(coder);
-		if (get_stop(coder->simu))
-			break ;
 		refactor(coder);
 	}
 	return (NULL);
