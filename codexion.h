@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 12:36:04 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/26 20:00:00 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/05/27 07:57:26 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,5 +105,6 @@ int			request_is_before(t_request a, t_request b, int scheduler);
 int			heap_push(t_heap *heap, t_request request, int scheduler);
 t_request	*heap_top(t_heap *heap);
 void		heap_pop(t_heap *heap, int scheduler);
+void		heap_remove_at(t_heap *heap, int index, int scheduler);
 
 #endif

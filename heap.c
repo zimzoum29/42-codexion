@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 18:11:17 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/26 18:24:52 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/05/27 08:09:32 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,28 +62,12 @@ static void	heapify_down(t_heap *heap, int index, int scheduler)
 	}
 }
 
-int	heap_push(t_heap *heap, t_request request, int scheduler)
+void	heap_remove_at(t_heap *heap, int index, int scheduler)
 {
-	if (heap->size >= heap->capacity)
-		return (0);
-	heap->data[heap->size] = request;
-	heapify_up(heap, heap->size, scheduler);
-	heap->size++;
-	return (1);
-}
-
-t_request	*heap_top(t_heap *heap)
-{
-	if (heap->size == 0)
-		return (NULL);
-	return (&heap->data[0]);
-}
-
-void	heap_pop(t_heap *heap, int scheduler)
-{
-	if (heap->size == 0)
+	if (index < 0 || index >= heap->size)
 		return ;
-	heap->data[0] = heap->data[heap->size - 1];
+	heap->data[index] = heap->data[heap->size - 1];
 	heap->size--;
-	heapify_down(heap, 0, scheduler);
+	heapify_down(heap, index, scheduler);
+	heapify_up(heap, index, scheduler);
 }
