@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 13:32:16 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/26 20:00:00 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/05/29 18:50:49 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,7 @@ static int	compiles_are_completed(t_simu *simu)
 	i = 0;
 	while (i < simu->number_of_coders)
 	{
-		if (simu->coders[i].compile_count
-			< simu->number_of_compiles_required)
+		if (simu->coders[i].compile_count < simu->number_of_compiles_required)
 			return (0);
 		i++;
 	}
@@ -54,32 +53,28 @@ static void	refactor(t_coder *coder)
 	ms_sleep(coder->simu, coder->simu->time_to_refactor);
 }
 
-static void	*single_coder_routine(t_coder *coder)
-{
-	if (take_dongles(coder))
-	{
-		while (!get_stop(coder->simu))
-			usleep(100);
-		drop_dongles(coder);
-	}
-	return (NULL);
-}
-
 void	*routine(void *arg)
 {
 	t_coder	*coder;
 
 	coder = (t_coder *)arg;
+	if (coder->id % 2 == 0)
+		usleep(1000);
 	if (coder->simu->number_of_coders == 1)
 		return (single_coder_routine(coder));
 	while (!get_stop(coder->simu))
 	{
+		pthread_mutex_lock(&coder->simu->state_mutex);
+		if (coder->compile_count >= coder->simu->number_of_compiles_required)
+		{
+			pthread_mutex_unlock(&coder->simu->state_mutex);
+			return (NULL);
+		}
+		pthread_mutex_unlock(&coder->simu->state_mutex);
 		if (!request_compile_permission(coder))
 			return (NULL);
 		compile(coder);
 		drop_dongles(coder);
-		if (get_stop(coder->simu))
-			return (NULL);
 		debug(coder);
 		refactor(coder);
 	}

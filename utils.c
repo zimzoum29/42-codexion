@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 13:36:00 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/26 20:00:00 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/05/27 08:18:54 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,4 +51,15 @@ void	clean_simu(t_simu *simu)
 	free(simu->queue.data);
 	free(simu->dongles);
 	free(simu->coders);
+}
+
+void	*single_coder_routine(t_coder *coder)
+{
+	if (take_dongles(coder))
+	{
+		while (!get_stop(coder->simu))
+			usleep(100);
+		drop_dongles(coder);
+	}
+	return (NULL);
 }

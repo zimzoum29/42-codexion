@@ -12,7 +12,9 @@ SRCS = main.c\
 		time.c\
 		monitor.c\
 		scheduler.c\
-		heap.c
+		heap.c\
+		queue.c\
+		stop.c
 
 OBJS = $(SRCS:.c=.o)
 
