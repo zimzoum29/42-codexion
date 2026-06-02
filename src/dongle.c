@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 13:41:19 by tigondra          #+#    #+#             */
-/*   Updated: 2026/06/02 11:23:30 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/06/02 15:52:54 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,18 +95,22 @@ void	drop_dongles(t_coder *coder)
 	pthread_mutex_unlock(&coder->simu->queue_mutex);
 }
 
-int	dongles_available(t_coder *coder)
+int dongles_available(t_coder *coder)
 {
-	long	now;
-	int		ok;
+    long now;
+    int ok;
 
-	now = timestamp(coder->simu);
-	pthread_mutex_lock(&coder->left->mutex);
-	pthread_mutex_lock(&coder->right->mutex);
-	ok = (!coder->left->in_use && !coder->right->in_use
-			&& coder->left->cooldown_until <= now
-			&& coder->right->cooldown_until <= now);
-	pthread_mutex_unlock(&coder->right->mutex);
-	pthread_mutex_unlock(&coder->left->mutex);
-	return (ok);
+    if (coder->simu->number_of_coders == 1)
+        return (FALSE);
+
+    now = timestamp(coder->simu);
+    lock_pair(coder->left, coder->right);
+
+    ok = (!coder->left->in_use && !coder->right->in_use
+            && coder->left->cooldown_until <= now
+            && coder->right->cooldown_until <= now);
+
+    pthread_mutex_unlock(&coder->left->mutex);
+    pthread_mutex_unlock(&coder->right->mutex);
+    return (ok);
 }

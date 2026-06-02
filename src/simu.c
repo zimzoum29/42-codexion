@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 13:17:11 by tigondra          #+#    #+#             */
-/*   Updated: 2026/06/02 11:23:30 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/06/02 15:44:38 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ int	init_simu(t_simu *simu)
 	pthread_mutex_init(&simu->state_mutex, NULL);
 	pthread_mutex_init(&simu->queue_mutex, NULL);
 	pthread_cond_init(&simu->queue_cond, NULL);
+	pthread_mutex_init(&simu->scheduler_mutex, NULL);
 	while (i < simu->number_of_coders)
 	{
 		simu->dongles[i] = init_dongle();
