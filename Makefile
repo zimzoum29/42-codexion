@@ -1,20 +1,21 @@
 NAME = codexion
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -pthread
+CFLAGS = -Wall -Wextra -Werror -pthread -I includes
 
-SRCS = main.c\
-		parse.c\
-		simu.c\
-		routine.c\
-		utils.c\
-		dongle.c\
-		time.c\
-		monitor.c\
-		scheduler.c\
-		heap.c\
-		queue.c\
-		stop.c
+SRCS = src/main.c\
+		src/parse.c\
+		src/simu.c\
+		src/routine.c\
+		src/utils.c\
+		src/dongle.c\
+		src/time.c\
+		src/monitor.c\
+		src/scheduler.c\
+		src/heap.c\
+		src/queue.c\
+		src/stop.c\
+		src/scheduler_utils.c
 
 OBJS = $(SRCS:.c=.o)
 

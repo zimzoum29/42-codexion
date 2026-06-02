@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 18:11:33 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/29 18:54:33 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/06/02 11:23:30 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,11 +73,11 @@ static int	request_has_priority(t_coder *coder, int my_index, int scheduler)
 		{
 			if (request_is_before(other, my_req, scheduler)
 				&& dongles_available(other.coder))
-				return (0);
+				return (FALSE);
 		}
 		i++;
 	}
-	return (1);
+	return (TRUE);
 }
 
 static int	request_permission(t_coder *coder, int scheduler)
@@ -108,7 +108,7 @@ static int	request_permission(t_coder *coder, int scheduler)
 	if (index != -1)
 		heap_remove_at(&coder->simu->queue, index, scheduler);
 	pthread_mutex_unlock(&coder->simu->queue_mutex);
-	return (0);
+	return (FALSE);
 }
 
 int	request_fifo_permission(t_coder *coder)

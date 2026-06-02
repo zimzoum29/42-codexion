@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 13:17:11 by tigondra          #+#    #+#             */
-/*   Updated: 2026/06/02 10:38:04 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/06/02 11:23:30 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ static int	init_memory(t_simu *simu)
 {
 	simu->dongles = malloc(sizeof(t_dongle) * simu->number_of_coders);
 	if (!simu->dongles)
-		return (0);
+		return (FALSE);
 	simu->coders = malloc(sizeof(t_coder) * simu->number_of_coders);
 	if (!simu->coders)
 		return (free(simu->dongles), 0);
@@ -50,9 +50,9 @@ static int	init_memory(t_simu *simu)
 	{
 		free(simu->dongles);
 		free(simu->coders);
-		return (0);
+		return (FALSE);
 	}
-	return (1);
+	return (TRUE);
 }
 
 int	init_simu(t_simu *simu)
@@ -66,7 +66,7 @@ int	init_simu(t_simu *simu)
 	simu->state = 0;
 	simu->queue.capacity = simu->number_of_coders;
 	if (!init_memory(simu))
-		return (0);
+		return (FALSE);
 	pthread_mutex_init(&simu->print_mutex, NULL);
 	pthread_mutex_init(&simu->stop_mutex, NULL);
 	pthread_mutex_init(&simu->state_mutex, NULL);
@@ -78,7 +78,7 @@ int	init_simu(t_simu *simu)
 		simu->coders[i] = init_coder(i + 1, simu);
 		i++;
 	}
-	return (1);
+	return (TRUE);
 }
 
 int	make_simu(t_simu *simu)
@@ -104,5 +104,5 @@ int	make_simu(t_simu *simu)
 	while (i < simu->number_of_coders)
 		pthread_join(simu->coders[i++].thread, NULL);
 	pthread_join(simu->monitor_thread, NULL);
-	return (1);
+	return (TRUE);
 }

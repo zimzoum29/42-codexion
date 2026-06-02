@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 13:41:19 by tigondra          #+#    #+#             */
-/*   Updated: 2026/06/02 10:36:46 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/06/02 11:23:30 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,10 +37,10 @@ static int	reserve_one(t_coder *coder)
 		coder->left->in_use = 1;
 		pthread_mutex_unlock(&coder->left->mutex);
 		print_state(coder, "has taken a dongle");
-		return (1);
+		return (TRUE);
 	}
 	pthread_mutex_unlock(&coder->left->mutex);
-	return (0);
+	return (FALSE);
 }
 
 int	take_dongles(t_coder *coder)
@@ -61,11 +61,11 @@ int	take_dongles(t_coder *coder)
 		pthread_mutex_unlock(&coder->right->mutex);
 		print_state(coder, "has taken a dongle");
 		print_state(coder, "has taken a dongle");
-		return (1);
+		return (TRUE);
 	}
 	pthread_mutex_unlock(&coder->left->mutex);
 	pthread_mutex_unlock(&coder->right->mutex);
-	return (0);
+	return (FALSE);
 }
 
 void	drop_dongles(t_coder *coder)
