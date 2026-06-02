@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 13:17:11 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/30 14:15:37 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/06/02 10:38:04 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ int	make_simu(t_simu *simu)
 	while (i < simu->number_of_coders)
 	{
 		if (pthread_create(&simu->coders[i].thread, NULL, routine,
-			&simu->coders[i]) != 0)
+				&simu->coders[i]) != 0)
 			break ;
 		i++;
 	}

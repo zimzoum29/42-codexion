@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 13:41:19 by tigondra          #+#    #+#             */
-/*   Updated: 2026/06/02 10:32:15 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/06/02 10:36:46 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,11 +52,11 @@ int	take_dongles(t_coder *coder)
 	now = timestamp(coder->simu);
 	lock_pair(coder->left, coder->right);
 	if ((!coder->left->in_use && !coder->right->in_use
-		&& coder->left->cooldown_until <= now
-		&& coder->right->cooldown_until <= now))
+			&& coder->left->cooldown_until <= now
+			&& coder->right->cooldown_until <= now))
 	{
 		coder->left->in_use = 1;
-		coder->right->in_use = 1;	
+		coder->right->in_use = 1;
 		pthread_mutex_unlock(&coder->left->mutex);
 		pthread_mutex_unlock(&coder->right->mutex);
 		print_state(coder, "has taken a dongle");
