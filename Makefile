@@ -1,7 +1,7 @@
 NAME = codexion
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -pthread -I includes
+CFLAGS = -Wall -Wextra -Werror -pthread -I includes -MMD -MP
 
 SRCS = src/main.c\
 		src/parse.c\
@@ -18,6 +18,7 @@ SRCS = src/main.c\
 		src/request.c
 
 OBJS = $(SRCS:.c=.o)
+D_FILES = $(SRCS:.c=.d)
 
 all: $(NAME)
 
@@ -31,3 +32,7 @@ fclean: clean
 	rm -f $(NAME)
 
 re: fclean all
+
+.PHONY: all clean fclean re
+
+-include $(D_FILES)
