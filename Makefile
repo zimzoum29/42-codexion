@@ -15,7 +15,7 @@ SRCS = src/main.c\
 		src/heap.c\
 		src/queue.c\
 		src/stop.c\
-		src/scheduler_utils.c
+		src/request.c
 
 OBJS = $(SRCS:.c=.o)
 

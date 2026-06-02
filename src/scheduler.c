@@ -5,125 +5,58 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/26 18:11:33 by tigondra          #+#    #+#             */
-/*   Updated: 2026/06/02 11:23:30 by tigondra         ###   ########.fr       */
+/*   Created: 2026/06/02 12:28:58 by tigondra          #+#    #+#             */
+/*   Updated: 2026/06/02 15:34:11 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-static t_request	create_request(t_coder *coder)
+int	wait_threads_init(t_coder *coder)
 {
-	t_request	req;
-
-	req.coder = coder;
-	req.arrival = timestamp(coder->simu);
-	pthread_mutex_lock(&coder->simu->state_mutex);
-	req.deadline = coder->last_compile + coder->simu->time_to_burnout;
-	pthread_mutex_unlock(&coder->simu->state_mutex);
-	return (req);
-}
-
-static int	share_dongle(t_coder *a, t_coder *b)
-{
-	return (a->left == b->right || a->right == b->left);
-}
-
-static int	find_request(t_simu *simu, t_coder *coder)
-{
-	int	i;
-
-	i = 0;
-	while (i < simu->queue.size)
+	while (1)
 	{
-		if (simu->queue.data[i].coder == coder)
-			return (i);
-		i++;
-	}
-	return (-1);
-}
-
-int	request_is_before(t_request a, t_request b, int scheduler)
-{
-	if (scheduler == FIFO)
-	{
-		if (a.arrival != b.arrival)
-			return (a.arrival < b.arrival);
-		return (a.coder->id < b.coder->id);
-	}
-	if (a.deadline != b.deadline)
-		return (a.deadline < b.deadline);
-	return (a.coder->id < b.coder->id);
-}
-
-static int	request_has_priority(t_coder *coder, int my_index, int scheduler)
-{
-	t_simu		*simu;
-	t_request	my_req;
-	t_request	other;
-	int			i;
-
-	simu = coder->simu;
-	my_req = simu->queue.data[my_index];
-	i = 0;
-	while (i < simu->queue.size)
-	{
-		other = simu->queue.data[i];
-		if (i != my_index && share_dongle(coder, other.coder))
+		pthread_mutex_lock(&coder->simu->scheduler_mutex);
+		if (coder->simu->state == 1)
 		{
-			if (request_is_before(other, my_req, scheduler)
-				&& dongles_available(other.coder))
-				return (FALSE);
+			pthread_mutex_unlock(&coder->simu->scheduler_mutex);
+			break ;
 		}
-		i++;
+		if (coder->simu->state == 2)
+		{
+			pthread_mutex_unlock(&coder->simu->scheduler_mutex);
+			return (FALSE);
+		}
+		pthread_mutex_unlock(&coder->simu->scheduler_mutex);
+		usleep(100);
 	}
 	return (TRUE);
 }
 
-static int	request_permission(t_coder *coder, int scheduler)
+int	has_finished(t_coder *coder)
 {
-	t_request	req;
-	int			index;
+	int	ok;
 
-	req = create_request(coder);
-	pthread_mutex_lock(&coder->simu->queue_mutex);
-	if (!heap_push(&coder->simu->queue, req, scheduler))
-		return (pthread_mutex_unlock(&coder->simu->queue_mutex), 0);
-	while (!get_stop(coder->simu))
-	{
-		index = find_request(coder->simu, coder);
-		if (index != -1 && request_has_priority(coder, index, scheduler)
-			&& take_dongles(coder))
-		{
-			index = find_request(coder->simu, coder);
-			heap_remove_at(&coder->simu->queue, index, scheduler);
-			pthread_cond_broadcast(&coder->simu->queue_cond);
-			return (pthread_mutex_unlock(&coder->simu->queue_mutex), 1);
-		}
-		pthread_mutex_unlock(&coder->simu->queue_mutex);
-		usleep(100);
-		pthread_mutex_lock(&coder->simu->queue_mutex);
-	}
+	pthread_mutex_lock(&coder->simu->state_mutex);
+	ok = coder->compile_count >= coder->simu->number_of_compiles_required;
+	pthread_mutex_unlock(&coder->simu->state_mutex);
+	return (ok);
+}
+
+int	check_request(t_coder *coder, int scheduler)
+{
+	int	index;
+
 	index = find_request(coder->simu, coder);
-	if (index != -1)
-		heap_remove_at(&coder->simu->queue, index, scheduler);
+	heap_remove_at(&coder->simu->queue, index, scheduler);
+	pthread_cond_broadcast(&coder->simu->queue_cond);
 	pthread_mutex_unlock(&coder->simu->queue_mutex);
-	return (FALSE);
-}
-
-int	request_fifo_permission(t_coder *coder)
-{
-	return (request_permission(coder, FIFO));
-}
-
-int	request_edf_permission(t_coder *coder)
-{
-	return (request_permission(coder, EDF));
+	return (1);
 }
 
 int	request_compile_permission(t_coder *coder)
 {
 	if (coder->simu->scheduler == FIFO)
-		return (request_fifo_permission(coder));
-	return (request_edf_permission(coder));
+		return (request_permission(coder, FIFO));
+	return (request_permission(coder, EDF));
 }
