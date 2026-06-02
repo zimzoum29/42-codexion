@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 13:41:19 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/27 19:06:25 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/06/02 10:32:15 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,6 @@ static void	lock_pair(t_dongle *a, t_dongle *b)
 		pthread_mutex_lock(&b->mutex);
 		pthread_mutex_lock(&a->mutex);
 	}
-}
-
-static void	unlock_pair(t_dongle *a, t_dongle *b)
-{
-	pthread_mutex_unlock(&a->mutex);
-	pthread_mutex_unlock(&b->mutex);
 }
 
 static int	reserve_one(t_coder *coder)
@@ -62,13 +56,15 @@ int	take_dongles(t_coder *coder)
 		&& coder->right->cooldown_until <= now))
 	{
 		coder->left->in_use = 1;
-		coder->right->in_use = 1;
-		unlock_pair(coder->left, coder->right);
+		coder->right->in_use = 1;	
+		pthread_mutex_unlock(&coder->left->mutex);
+		pthread_mutex_unlock(&coder->right->mutex);
 		print_state(coder, "has taken a dongle");
 		print_state(coder, "has taken a dongle");
 		return (1);
 	}
-	unlock_pair(coder->left, coder->right);
+	pthread_mutex_unlock(&coder->left->mutex);
+	pthread_mutex_unlock(&coder->right->mutex);
 	return (0);
 }
 
@@ -92,12 +88,12 @@ void	drop_dongles(t_coder *coder)
 		coder->right->in_use = 0;
 		coder->left->cooldown_until = now + coder->simu->dongle_cooldown;
 		coder->right->cooldown_until = now + coder->simu->dongle_cooldown;
-		unlock_pair(coder->left, coder->right);
+		pthread_mutex_unlock(&coder->left->mutex);
+		pthread_mutex_unlock(&coder->right->mutex);
 	}
 	pthread_cond_broadcast(&coder->simu->queue_cond);
 	pthread_mutex_unlock(&coder->simu->queue_mutex);
 }
-
 
 int	dongles_available(t_coder *coder)
 {

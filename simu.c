@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 13:17:11 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/29 18:51:34 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/05/30 14:15:37 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ int	init_simu(t_simu *simu)
 	simu->start_time = get_time_ms();
 	simu->stop = 0;
 	simu->queue.size = 0;
+	simu->state = 0;
 	simu->queue.capacity = simu->number_of_coders;
 	if (!init_memory(simu))
 		return (0);
@@ -87,10 +88,17 @@ int	make_simu(t_simu *simu)
 	i = 0;
 	while (i < simu->number_of_coders)
 	{
-		pthread_create(&simu->coders[i].thread, NULL, routine,
-			&simu->coders[i]);
+		if (pthread_create(&simu->coders[i].thread, NULL, routine,
+			&simu->coders[i]) != 0)
+			break ;
 		i++;
 	}
+	pthread_mutex_lock(&simu->scheduler_mutex);
+	if (i == simu->number_of_coders)
+		simu->state = 1;
+	else
+		simu->state = 2;
+	pthread_mutex_unlock(&simu->scheduler_mutex);
 	pthread_create(&simu->monitor_thread, NULL, monitor_routine, simu);
 	i = 0;
 	while (i < simu->number_of_coders)

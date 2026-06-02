@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 13:32:16 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/29 18:50:49 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/05/30 14:15:55 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,19 @@ void	*routine(void *arg)
 	t_coder	*coder;
 
 	coder = (t_coder *)arg;
+	while (1)
+	{
+		pthread_mutex_lock(&coder->simu->scheduler_mutex);
+		if (coder->simu->state == 1)
+		{
+			pthread_mutex_unlock(&coder->simu->scheduler_mutex);
+			break ;
+		}
+		if (coder->simu->state == 2)
+			return (pthread_mutex_unlock(&coder->simu->scheduler_mutex), NULL);
+		pthread_mutex_unlock(&coder->simu->scheduler_mutex);
+		usleep(100);
+	}
 	if (coder->id % 2 == 0)
 		usleep(1000);
 	if (coder->simu->number_of_coders == 1)
