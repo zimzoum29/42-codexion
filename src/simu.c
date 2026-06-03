@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 13:17:11 by tigondra          #+#    #+#             */
-/*   Updated: 2026/06/02 16:01:07 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/06/03 11:15:12 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,8 @@ int	make_simu(t_simu *simu)
 	int	i;
 
 	i = 0;
+	if (pthread_create(&simu->monitor_thread, NULL, monitor_routine, simu) != 0)
+		return (FALSE);
 	while (i < simu->number_of_coders)
 	{
 		if (pthread_create(&simu->coders[i].thread, NULL, routine,
@@ -100,10 +102,10 @@ int	make_simu(t_simu *simu)
 	else
 		simu->state = 2;
 	pthread_mutex_unlock(&simu->scheduler_mutex);
-	pthread_create(&simu->monitor_thread, NULL, monitor_routine, simu);
+	pthread_join(simu->monitor_thread, NULL);
 	i = 0;
 	while (i < simu->number_of_coders)
 		pthread_join(simu->coders[i++].thread, NULL);
-	pthread_join(simu->monitor_thread, NULL);
-	return (TRUE);
+	clean_simu(simu);
+	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/27 08:28:23 by tigondra          #+#    #+#             */
-/*   Updated: 2026/05/27 08:28:42 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/06/03 11:16:29 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,4 +35,14 @@ void	stop_and_wake(t_simu *simu)
 	pthread_mutex_lock(&simu->queue_mutex);
 	pthread_cond_broadcast(&simu->queue_cond);
 	pthread_mutex_unlock(&simu->queue_mutex);
+}
+
+int	get_state(t_simu *simu)
+{
+	int	state;
+
+	pthread_mutex_lock(&simu->scheduler_mutex);
+	state = simu->state;
+	pthread_mutex_unlock(&simu->scheduler_mutex);
+	return (state);
 }

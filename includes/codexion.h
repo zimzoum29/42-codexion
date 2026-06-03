@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 12:36:04 by tigondra          #+#    #+#             */
-/*   Updated: 2026/06/02 15:36:12 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/06/03 11:14:08 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,5 +122,6 @@ int						has_finished(t_coder *coder);
 int						request_permission(t_coder *coder, int scheduler);
 int						find_request(t_simu *simu, t_coder *coder);
 int						check_request(t_coder *coder, int scheduler);
+int						get_state(t_simu *simu);
 
 #endif

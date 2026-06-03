@@ -97,4 +97,6 @@ Useful references for this project:
 - Dining philosophers problem explanations.
 - Binary heap / priority queue algorithm references.
 
-AI was used during development to discuss project structure, scheduler design, edge cases, race conditions, and debugging strategies. The implementation was reviewed and adapted manually to match the project constraints.
+AI was used to effectively test the project by running a series of tests and verifying that the output did not contain any inconsistencies.
+
+Thanks to sservant for creating a visualizer that lets us see exactly what our output looks like : https://codexion-visualizer.sacha-dev.me/ 

@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 15:07:07 by tigondra          #+#    #+#             */
-/*   Updated: 2026/06/02 10:37:14 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/06/03 11:14:38 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ void	*monitor_routine(void *arg)
 	long	now;
 
 	simu = (t_simu *)arg;
-	if (simu->state == 2)
+	if (get_state(simu) == 2)
 		return (NULL);
 	while (!get_stop(simu))
 	{
