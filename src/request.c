@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 18:11:33 by tigondra          #+#    #+#             */
-/*   Updated: 2026/06/02 15:36:40 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/06/03 14:24:52 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,12 +65,9 @@ static int	request_has_priority(t_coder *coder, int my_index, int scheduler)
 	{
 		other = simu->queue.data[i];
 		if (i != my_index && (coder->left == other.coder->right
-				|| coder->right == other.coder->left))
-		{
-			if (request_is_before(other, my_req, scheduler)
-				&& dongles_available(other.coder))
-				return (FALSE);
-		}
+				|| coder->right == other.coder->left)
+			&& request_is_before(other, my_req, scheduler))
+			return (FALSE);
 		i++;
 	}
 	return (TRUE);

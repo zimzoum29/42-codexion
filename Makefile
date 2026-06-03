@@ -15,7 +15,8 @@ SRCS = src/main.c\
 		src/heap.c\
 		src/queue.c\
 		src/stop.c\
-		src/request.c
+		src/request.c\
+		src/mutex.c
 
 OBJS = $(SRCS:.c=.o)
 D_FILES = $(SRCS:.c=.d)

@@ -6,7 +6,7 @@
 /*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 13:36:00 by tigondra          #+#    #+#             */
-/*   Updated: 2026/06/02 15:44:54 by tigondra         ###   ########.fr       */
+/*   Updated: 2026/06/03 13:54:50 by tigondra         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,12 +38,7 @@ static void	destroy_mutexes(t_simu *simu)
 		pthread_mutex_destroy(&simu->dongles[i].mutex);
 		i++;
 	}
-	pthread_mutex_destroy(&simu->print_mutex);
-	pthread_mutex_destroy(&simu->stop_mutex);
-	pthread_mutex_destroy(&simu->state_mutex);
-	pthread_mutex_destroy(&simu->queue_mutex);
-	pthread_cond_destroy(&simu->queue_cond);
-	pthread_mutex_destroy(&simu->scheduler_mutex);
+	cleanup_mutex(simu, 0);
 }
 
 void	clean_simu(t_simu *simu)

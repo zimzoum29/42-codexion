@@ -26,7 +26,7 @@ Example:
 
 ```bash
 ./codexion 5 800 200 200 200 3 0 fifo
-./codexion 5 800 200 200 200 3 50 edf
+./codexion 10 5000 100 100 100 3 500 edf
 ```
 
 The scheduler argument must be either:
